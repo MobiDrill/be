@@ -1,0 +1,118 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.mobidrill'
+version = '0.0.1-SNAPSHOT'
+description = 'mobiDrill-be'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
+
+    // DB Driver
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.7'
+    runtimeOnly   'io.jsonwebtoken:jjwt-impl:0.12.7'
+    runtimeOnly   'io.jsonwebtoken:jjwt-jackson:0.12.7'
+
+    // OpenAPI UI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    // QueryDSL : OpenFeign
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:7.0"
+    implementation "io.github.openfeign.querydsl:querydsl-core:7.0"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:7.0:jpa"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+
+    // MapStruct (Lombok 함께 사용 시 바인딩 추가 권장)
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+    // DevTools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-aspectj-test'
+
+    // Ops
+    implementation 'org.springframework.boot:spring-boot-starter-actuator' // Spring Boot 운영/모니터링 엔드포인트 제공 라이브러리
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus' // Actuator가 수집한 메트릭을 Prometheus가 읽을 수 있는 포맷으로 변환/노출하는 라이브러리
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    testImplementation 'it.ozimov:embedded-redis:0.7.2'
+
+    // H2 Database
+    testRuntimeOnly 'com.h2database:h2'
+
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = project.hasProperty('showTestLogs')
+    }
+}
+
+// --- QueryDSL generated 경로 지정 ---
+def querydslDir = layout.buildDirectory.dir("generated/querydsl")
+
+sourceSets {
+    main {
+        java {
+            srcDir(querydslDir)
+        }
+    }
+}
+
+// QueryDSL 생성 경로는 main 컴파일에만 적용
+tasks.named('compileJava', JavaCompile) {
+    options.generatedSourceOutputDirectory.set(querydslDir)
+}
+
+// -parameters 옵션은 main/test 모두 적용
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add("-parameters")
+}
