@@ -15,7 +15,6 @@ import com.mobidrill.backend.domain.user.exception.UserErrorCode;
 import com.mobidrill.backend.domain.user.repository.UserRepository;
 import com.mobidrill.backend.global.exception.CustomException;
 import com.mobidrill.backend.global.security.CustomUserDetails;
-import com.mobidrill.backend.global.security.SecurityUtil;
 import com.mobidrill.backend.global.security.module.JwtTokenType;
 import com.mobidrill.backend.global.security.module.UserAuthDto;
 import com.mobidrill.backend.global.util.JwtUtil;
@@ -192,10 +191,10 @@ public class AuthService {
 
     /**
      * 현재 사용자의 Refresh Token을 제거하고 Access Token을 블랙리스트에 등록한다.
+     * @param currentUserId : Controller에서 전달한 인증 사용자 ID
      * @param request : 폐기할 Access/Refresh Token
      */
-    public void logout(AuthLogoutReqDto request) {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
+    public void logout(Long currentUserId, AuthLogoutReqDto request) {
         log.info("[AuthService] 로그아웃 | logout() - START | userId: {}", currentUserId);
 
         /*

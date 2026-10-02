@@ -163,6 +163,25 @@ class EntityMappingTest {
         }).isInstanceOf(PersistenceException.class);
     }
 
+    @Test
+    @DisplayName("서로 다른 교범에도 동일 storageKey는 저장할 수 없다")
+    void 교범파일_storageKey_중복_저장_실패() {
+        // given
+        User user = saveUser();
+        Manual first = saveManual(user);
+        Manual second = saveManual(user);
+        persist(ManualFile.builder().manual(first).originalName("first.pdf")
+                .fileType(ManualFileType.PDF).storageKey("c".repeat(32)).sizeBytes(100L).build());
+        entityManager.flush();
+
+        // when & then
+        assertThatThrownBy(() -> {
+            persist(ManualFile.builder().manual(second).originalName("second.pdf")
+                    .fileType(ManualFileType.PDF).storageKey("c".repeat(32)).sizeBytes(100L).build());
+            entityManager.flush();
+        }).isInstanceOf(PersistenceException.class);
+    }
+
     private QuestionBranch branch(Question question, SquadRole role) {
         return QuestionBranch.builder().question(question).squadRole(role)
                 .additionalSituationDescription("상황").query("행동은?").build();

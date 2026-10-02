@@ -2,6 +2,7 @@ package com.mobidrill.backend.domain.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mobidrill.backend.domain.auth.dto.AuthLoginEmailReqDto;
+import com.mobidrill.backend.domain.auth.dto.AuthLogoutReqDto;
 import com.mobidrill.backend.domain.auth.dto.AuthRegisterEmailReqDto;
 import com.mobidrill.backend.domain.user.entity.User;
 import com.mobidrill.backend.domain.user.enums.UserRole;
@@ -198,6 +199,45 @@ class AuthIntegrationTest {
         assertThat(objectMapper.readTree(response.body()).has("data")).isFalse();
     }
 
+    @Test
+    @DisplayName("일반 사용자도 Controller에서 주입한 인증 사용자 ID로 로그아웃할 수 있다")
+    void 인증_사용자_ID_주입_로그아웃_성공() throws Exception {
+        // given
+        User user = saveUser(UserStatus.ACTIVE);
+        var details = new CustomUserDetails(new UserAuthDto(user.getId(), user.getEmail(), user.getPassword(),
+                user.getRole(), user.getStatus()));
+        String access = jwtUtil.createAccessToken(details).token();
+        String refresh = jwtUtil.createRefreshToken(details).token();
+
+        // when
+        var response = post("/logout?userId=" + Long.MAX_VALUE, new AuthLogoutReqDto(access, refresh), access);
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(objectMapper.readTree(response.body()).path("message").asText()).isEqualTo("로그아웃이 완료되었습니다.");
+    }
+
+    @Test
+    @DisplayName("인증 사용자와 다른 사용자의 토큰으로 로그아웃하면 거부한다")
+    void 다른_사용자_토큰_로그아웃_실패() throws Exception {
+        // given
+        User user = saveUser(UserStatus.ACTIVE);
+        var current = new CustomUserDetails(new UserAuthDto(user.getId(), user.getEmail(), user.getPassword(),
+                user.getRole(), user.getStatus()));
+        var other = new CustomUserDetails(new UserAuthDto(Long.MAX_VALUE, "other@example.com", "encoded",
+                UserRole.ROLE_USER, UserStatus.ACTIVE));
+        String access = jwtUtil.createAccessToken(current).token();
+        String otherAccess = jwtUtil.createAccessToken(other).token();
+        String otherRefresh = jwtUtil.createRefreshToken(other).token();
+
+        // when
+        var response = post("/logout", new AuthLogoutReqDto(otherAccess, otherRefresh), access);
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(objectMapper.readTree(response.body()).path("message").asText()).isEqualTo("토큰의 사용자 정보가 일치하지 않습니다.");
+    }
+
     private User saveUser(UserStatus status) {
         return userRepository.saveAndFlush(User.builder().name("사용자").email("existing@example.com")
                 .password(passwordEncoder.encode("password123")).role(UserRole.ROLE_USER).status(status).build());
@@ -208,11 +248,17 @@ class AuthIntegrationTest {
     }
 
     private HttpResponse<String> post(String path, Object body) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/auth" + path))
+        return post(path, body, null);
+    }
+
+    private HttpResponse<String> post(String path, Object body, String accessToken) throws Exception {
+        HttpRequest.Builder request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/auth" + path))
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body), StandardCharsets.UTF_8))
-                .build();
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body), StandardCharsets.UTF_8));
+        if (accessToken != null) {
+            request.header("Authorization", "Bearer " + accessToken);
+        }
+        return client.send(request.build(), HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpResponse<String> protectedRequest(String token) throws Exception {

@@ -11,6 +11,7 @@ import com.mobidrill.backend.global.response.GlobalResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,8 +38,10 @@ public class AuthController implements AuthControllerDocs {
     }
 
     @Override
-    public ResponseEntity<GlobalResponse<Void>> logout(AuthLogoutReqDto request) {
-        authService.logout(request);
+    public ResponseEntity<GlobalResponse<Void>> logout(
+            @AuthenticationPrincipal(expression = "userAuthDto.userId", errorOnInvalidType = true) Long userId,
+            AuthLogoutReqDto request) {
+        authService.logout(userId, request);
         return ResponseEntity.ok(GlobalResponse.success("로그아웃이 완료되었습니다.", null));
     }
 }

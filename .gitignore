@@ -38,3 +38,6 @@ out/
 
 application-local.yml
 application-test.yml
+
+# 업로드된 교범 원본 및 임시 파일
+/src/main/resources/static/originalManual/

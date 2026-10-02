@@ -37,6 +37,10 @@ dependencies {
     // DB Driver
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // 교범 파일의 실제 형식 판별 (Office 컨테이너 detector 포함)
+    implementation 'org.apache.tika:tika-core:3.3.2'
+    implementation 'org.apache.tika:tika-parser-microsoft-module:3.3.2'
+
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.7'
     runtimeOnly   'io.jsonwebtoken:jjwt-impl:0.12.7'
@@ -94,6 +98,11 @@ tasks.named('test') {
     testLogging {
         showStandardStreams = project.hasProperty('showTestLogs')
     }
+}
+
+// 런타임 업로드 파일은 애플리케이션 리소스나 JAR에 포함하지 않는다.
+tasks.named('processResources') {
+    exclude 'static/originalManual/**'
 }
 
 // --- QueryDSL generated 경로 지정 ---

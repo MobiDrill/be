@@ -1,6 +1,10 @@
 spring:
   application:
     name: "MobiDrill-BE"
+  servlet:
+    multipart:
+      max-file-size: ${MANUAL_MAX_FILE_SIZE:50MB}
+      max-request-size: ${MANUAL_MAX_REQUEST_SIZE:55MB}
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver # MySQL JDBC 드라이버 클래스 지정
     hikari:
@@ -14,6 +18,12 @@ spring:
         format_sql: true # 출력되는 SQL 쿼리를 보기 좋게 포맷팅
         jdbc:
           batch_size: 50
+
+# 교범 원본 파일 저장 설정
+manual:
+  storage:
+    root: ${MANUAL_STORAGE_ROOT:./src/main/resources/static/originalManual}
+    max-file-size: ${MANUAL_MAX_FILE_SIZE:50MB}
 
 # swagger 설정
 springdoc:

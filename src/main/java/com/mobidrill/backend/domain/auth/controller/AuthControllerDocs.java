@@ -8,12 +8,14 @@ import com.mobidrill.backend.domain.auth.dto.AuthRefreshTokenResDto;
 import com.mobidrill.backend.domain.auth.dto.AuthRegisterEmailReqDto;
 import com.mobidrill.backend.global.response.GlobalResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,6 +64,8 @@ public interface AuthControllerDocs {
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     ResponseEntity<GlobalResponse<Void>> logout(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal(expression = "userAuthDto.userId", errorOnInvalidType = true) Long userId,
             @Valid @RequestBody AuthLogoutReqDto request
     );
 }
