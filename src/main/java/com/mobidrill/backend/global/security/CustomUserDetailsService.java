@@ -3,6 +3,7 @@ package com.mobidrill.backend.global.security;
 import com.mobidrill.backend.domain.user.entity.User;
 import com.mobidrill.backend.domain.user.exception.UserErrorCode;
 import com.mobidrill.backend.domain.user.repository.UserRepository;
+import com.mobidrill.backend.domain.user.mapper.UserMapper;
 import com.mobidrill.backend.global.exception.CustomException;
 import com.mobidrill.backend.global.security.module.UserAuthDto;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     /**
      * 사용자 ID로 Spring Security 인증 정보를 조회한다.
@@ -39,12 +41,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-        UserAuthDto userAuthDto = new UserAuthDto(
-                user.getId(),
-                user.getEmail(),
-                user.getPassword(),
-                user.getRole()
-        );
+        UserAuthDto userAuthDto = userMapper.toUserAuthDto(user);
 
         log.info("[CustomUserDetailsService] 인증 사용자 조회 | loadUserByUsername() - END | userId: {}", userId);
         return new CustomUserDetails(userAuthDto);

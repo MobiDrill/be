@@ -1,6 +1,7 @@
 package com.mobidrill.backend.global.security;
 
 import com.mobidrill.backend.global.exception.CustomException;
+import com.mobidrill.backend.domain.auth.exception.AuthErrorCode;
 import com.mobidrill.backend.global.exception.GlobalErrorCode;
 import com.mobidrill.backend.global.security.handler.UserAuthenticationEntryPoint;
 import com.mobidrill.backend.global.security.module.JwtTokenType;
@@ -85,6 +86,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         Long userId = jwtUtil.getUserIdFromToken(accessToken);
         CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService
                 .loadUserByUsername(userId.toString());
+        if (!userDetails.isEnabled()) {
+            throw new CustomException(AuthErrorCode.USER_INACTIVE);
+        }
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

@@ -2,12 +2,31 @@ package com.mobidrill.backend.domain.auth.mapper;
 
 import com.mobidrill.backend.domain.auth.dto.AuthLoginEmailResDto;
 import com.mobidrill.backend.domain.auth.dto.AuthRefreshTokenResDto;
+import com.mobidrill.backend.domain.auth.dto.AuthRegisterEmailReqDto;
 import com.mobidrill.backend.domain.user.entity.User;
+import com.mobidrill.backend.domain.user.enums.UserRole;
+import com.mobidrill.backend.domain.user.enums.UserStatus;
 import com.mobidrill.backend.global.util.module.TokenInfo;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AuthMapper {
+
+    /**
+     * 회원가입 요청을 기본 권한과 활성 상태의 사용자로 변환한다.
+     * @param request : 회원가입 요청
+     * @param encodedPassword : 암호화된 비밀번호
+     * @return : 저장할 사용자
+     */
+    public User toUser(AuthRegisterEmailReqDto request, String encodedPassword) {
+        return User.builder()
+                .name(request.name())
+                .email(request.email())
+                .password(encodedPassword)
+                .role(UserRole.ROLE_USER)
+                .status(UserStatus.ACTIVE)
+                .build();
+    }
 
     /**
      * 사용자와 발급 토큰을 로그인 응답 DTO로 변환한다.

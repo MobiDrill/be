@@ -1,0 +1,13 @@
+package com.mobidrill.backend.domain.manual.enums;
+
+public enum ManualStatus {
+    TEMPORARY_SAVED,
+    EXTRACTION_ONGOING,
+    REVIEW_NEED,
+    REVIEW_ONGOING,
+    QUESTION_GENERATION_NEED,
+    QUESTION_GENERATION_ONGOING,
+    QUESTION_REVIEW_NEED,
+    QUESTION_REVIEW_ONGOING,
+    ABNORMAL_TERMINATION
+}

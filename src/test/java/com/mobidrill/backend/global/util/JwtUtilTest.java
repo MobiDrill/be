@@ -1,6 +1,7 @@
 package com.mobidrill.backend.global.util;
 
 import com.mobidrill.backend.domain.user.enums.UserRole;
+import com.mobidrill.backend.domain.user.enums.UserStatus;
 import com.mobidrill.backend.global.exception.CustomException;
 import com.mobidrill.backend.global.security.CustomUserDetails;
 import com.mobidrill.backend.global.security.module.JwtTokenType;
@@ -26,7 +27,7 @@ class JwtUtilTest {
                 120_000L
         );
         userDetails = new CustomUserDetails(
-                new UserAuthDto(1L, "user@example.com", "encoded", UserRole.ROLE_USER)
+                new UserAuthDto(1L, "user@example.com", "encoded", UserRole.ROLE_USER, UserStatus.ACTIVE)
         );
     }
 

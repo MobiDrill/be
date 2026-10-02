@@ -1,5 +1,6 @@
 package com.mobidrill.backend.global.security;
 
+import com.mobidrill.backend.domain.user.enums.UserStatus;
 import com.mobidrill.backend.global.security.module.UserAuthDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -29,5 +30,10 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return userAuthDto.userId().toString();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return userAuthDto.status() == UserStatus.ACTIVE;
     }
 }
