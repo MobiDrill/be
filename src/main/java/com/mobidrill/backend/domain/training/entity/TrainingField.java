@@ -31,4 +31,14 @@ public class TrainingField {
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
+
+    /**
+     * 훈련 분야 이름과 활성 상태를 수정한다.
+     * @param name : 검증 및 정규화된 이름
+     * @param isActive : 활성 여부
+     */
+    public void update(String name, Boolean isActive) {
+        this.name = name;
+        this.isActive = isActive;
+    }
 }
