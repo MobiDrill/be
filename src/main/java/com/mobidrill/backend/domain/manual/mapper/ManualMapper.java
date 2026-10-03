@@ -50,7 +50,8 @@ public class ManualMapper {
                 .originalName(file.getOriginalName()).fileType(file.getFileType()).storageKey(file.getStorageKey())
                 .storedFileName(file.getStorageKey() + "." + extension).sizeBytes(file.getSizeBytes()).build();
         return ManualRegisterResDto.builder().manualId(manual.getId()).manualTitle(manual.getTitle())
-                .trainingFieldId(manual.getTrainingField().getId()).manualDescription(manual.getDescription())
+                .trainingFieldId(manual.getTrainingField() == null ? null : manual.getTrainingField().getId())
+                .manualDescription(manual.getDescription())
                 .manualStatus(manual.getStatus()).file(fileDto).build();
     }
 }

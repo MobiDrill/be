@@ -53,9 +53,9 @@ public class ManualPersistenceService {
         log.info("[ManualPersistenceService] 교범 저장 | createManualWithFile() - START | userId: {}", userId);
         /*
             1. 참조 데이터 검증
-            - 훈련 분야와 활성 등록자를 확인한다.
+            - 수정·삭제와 동일한 분야 행의 잠금을 획득하고 활성 등록자를 확인한다.
          */
-        TrainingField field = trainingFieldRepository.findById(request.trainingFieldId())
+        TrainingField field = trainingFieldRepository.findByIdForUpdate(request.trainingFieldId())
                 .orElseThrow(() -> new CustomException(ManualErrorCode.TRAINING_FIELD_NOT_FOUND));
         if (!Boolean.TRUE.equals(field.getIsActive())) {
             throw new CustomException(ManualErrorCode.TRAINING_FIELD_INACTIVE);

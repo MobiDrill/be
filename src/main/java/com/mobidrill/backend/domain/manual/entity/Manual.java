@@ -53,8 +53,8 @@ public class Manual {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "training_field_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "training_field_id", nullable = true)
     private TrainingField trainingField;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
